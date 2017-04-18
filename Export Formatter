@@ -1,0 +1,108 @@
+Sub KMEP() 'for fulcrum exports - including date change
+
+Dim wb As Workbook
+Dim numsheets As Integer
+
+Set wb = ActiveWorkbook     'sets wb equal to active workbook
+numsheets = wb.Sheets.Count 'counts number of sheets in workbook
+
+Dim sample_name As String
+sample_name = "well_no" 'Use column entry where Well/Sample ID is listed
+Dim colnum As Integer
+colnum = 16 'number of column where well/sample id is listed
+
+Dim insert_col As Integer
+insert_col = 12  'number of column to insert new row for well/sample ID
+
+Dim mp_elev As Integer
+mp_elev = 19
+
+Dim mp_insert As Integer
+mp_insert = 27
+
+Dim lookup_range As Range
+Set lookup_range = Worksheets(1).UsedRange 'sets range as active range for worksheet #1
+Dim active_range As Range
+
+Dim i As Integer    'for loop through sheets
+Dim j As Integer    'for loop through rows
+
+Dim numrows As Integer 'for loop rows end on each worksheet
+Dim fulcrum_id As String
+
+Dim date_string1 As String 'for created date
+Dim new_date1 As String
+
+Dim date_string2 As String 'for updated date
+Dim new_date2 As String
+
+For i = 1 To numsheets
+    
+    Select Case i
+     
+        Case 1
+            Worksheets(i).Activate
+            Set active_range = Worksheets(i).UsedRange
+            numrows = active_range.Rows.Count
+    
+            For j = 2 To numrows
+                date_string1 = Cells(j, 2)
+                new_date1 = Left(date_string1, 20)
+                Cells(j, 2) = new_date1
+        
+                date_string2 = Cells(j, 3)
+                new_date2 = Left(date_string2, 20)
+                Cells(j, 3) = new_date2
+            Next
+    
+        Case 2
+            Worksheets(i).Activate
+            Set active_range = Worksheets(i).UsedRange
+            numrows = active_range.Rows.Count
+            
+            Range(Cells(1, insert_col), Cells(2, insert_col)).EntireColumn.Insert 'insert new column for well/sample ID in column L
+            Cells(1, insert_col).Value = sample_name
+    
+            Range(Cells(1, mp_insert), Cells(2, mp_insert)).EntireColumn.Insert 'insert new column for TOC elevation in column L
+            Cells(1, mp_insert).Value = "TOC Elevation"
+        
+        For j = 2 To numrows
+            fulcrum_id = Cells(j, 3)
+            Cells(j, insert_col) = Application.WorksheetFunction.VLookup(fulcrum_id, lookup_range, colnum, False)
+            Cells(j, mp_insert) = Application.WorksheetFunction.VLookup(fulcrum_id, lookup_range, mp_elev, False)
+        
+            date_string1 = Cells(j, 8)
+            new_date1 = Left(date_string1, 20)
+            Cells(j, 8) = new_date1
+        
+            date_string2 = Cells(j, 9)
+            new_date2 = Left(date_string2, 20)
+            Cells(j, 9) = new_date2
+        Next
+         Case 3
+            Worksheets(i).Activate
+            Set active_range = Worksheets(i).UsedRange
+            numrows = active_range.Rows.Count
+    
+            Range(Cells(1, insert_col), Cells(2, insert_col)).EntireColumn.Insert 'insert new column for well/sample ID in column L
+            Cells(1, insert_col).Value = sample_name
+    
+            For j = 2 To numrows
+                fulcrum_id = Cells(j, 3)
+                Cells(j, insert_col) = Application.WorksheetFunction.VLookup(fulcrum_id, lookup_range, colnum, False)
+        
+                date_string1 = Cells(j, 8)
+                new_date1 = Left(date_string1, 20)
+                Cells(j, 8) = new_date1
+        
+                date_string2 = Cells(j, 9)
+                new_date2 = Left(date_string2, 20)
+                Cells(j, 9) = new_date2
+            Next
+    
+            Case Else
+                MsgBox ("Sheet not found")
+
+        End Select
+    Next
+End Sub
